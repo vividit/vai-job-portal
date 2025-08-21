@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - VAI AI Agent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <!-- Logo and Title -->
+            <div class="text-center">
+                <h1 class="text-4xl font-bold gradient-text mb-2">VAI AI</h1>
+                <h2 class="text-2xl font-semibold text-gray-900 mb-2">AI Job Application Agent</h2>
+                <p class="text-gray-600">Sign in to start your autonomous job search</p>
+            </div>
+
+            <!-- Login Form -->
+            <div class="bg-white py-8 px-6 shadow-lg rounded-lg">
+                <form id="loginForm" class="space-y-6">
+                    <div>
+                        <label for="user_id" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user mr-2"></i>User ID
+                        </label>
+                        <input 
+                            id="user_id" 
+                            name="user_id" 
+                            type="text" 
+                            required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Enter your user ID"
+                        >
+                    </div>
+
+                    <div>
+                        <label for="auth_token" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-key mr-2"></i>Authentication Token
+                        </label>
+                        <input 
+                            id="auth_token" 
+                            name="auth_token" 
+                            type="password" 
+                            required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Enter your auth token"
+                        >
+                    </div>
+
+                    <div>
+                        <button 
+                            type="submit" 
+                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300"
+                        >
+                            <i class="fas fa-sign-in-alt mr-2"></i>Sign In
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Demo Login -->
+                <div class="mt-6">
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-white text-gray-500">Or try demo mode</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 space-y-3">
+                        <button 
+                            onclick="demoLogin('demo_user_1')"
+                            class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300"
+                        >
+                            <i class="fas fa-rocket mr-2"></i>Demo User 1 (Python Developer)
+                        </button>
+                        
+                        <button 
+                            onclick="demoLogin('demo_user_2')"
+                            class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300"
+                        >
+                            <i class="fas fa-rocket mr-2"></i>Demo User 2 (React Developer)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Back to Home -->
+                <div class="mt-6 text-center">
+                    <a href="/" class="text-blue-600 hover:text-blue-500 text-sm">
+                        <i class="fas fa-arrow-left mr-1"></i>Back to Home
+                    </a>
+                </div>
+            </div>
+
+            <!-- Features Preview -->
+            <div class="bg-white py-6 px-6 shadow-lg rounded-lg">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 text-center">
+                    <i class="fas fa-star text-yellow-500 mr-2"></i>What you'll get access to:
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex items-center">
+                        <i class="fas fa-check text-green-500 mr-3"></i>
+                        <span class="text-gray-700">AI-powered job matching</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-check text-green-500 mr-3"></i>
+                        <span class="text-gray-700">Indian job sources (Naukri, Indeed, LinkedIn)</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-check text-green-500 mr-3"></i>
+                        <span class="text-gray-700">Automatic job applications</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-check text-green-500 mr-3"></i>
+                        <span class="text-gray-700">Personalized cover letters</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-check text-green-500 mr-3"></i>
+                        <span class="text-gray-700">100+ applications per day</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p class="text-gray-700">Signing you in...</p>
+        </div>
+    </div>
+
+    <script>
+        // Demo user profiles
+        const demoUsers = {
+            'demo_user_1': {
+                user_id: 'demo_user_1',
+                auth_token: 'demo_token_123',
+                profile: {
+                    name: 'Rahul Sharma',
+                    skills: ['Python', 'Django', 'React', 'MongoDB', 'AWS'],
+                    experience: '3-5 years',
+                    location: 'Mumbai',
+                    education: 'B.Tech Computer Science',
+                    current_role: 'Python Developer'
+                }
+            },
+            'demo_user_2': {
+                user_id: 'demo_user_2',
+                auth_token: 'demo_token_456',
+                profile: {
+                    name: 'Priya Patel',
+                    skills: ['React', 'Node.js', 'JavaScript', 'TypeScript', 'PostgreSQL'],
+                    experience: '2-4 years',
+                    location: 'Bangalore',
+                    education: 'M.Tech Software Engineering',
+                    current_role: 'Frontend Developer'
+                }
+            }
+        };
+
+        function demoLogin(userType) {
+            const user = demoUsers[userType];
+            if (user) {
+                document.getElementById('user_id').value = user.user_id;
+                document.getElementById('auth_token').value = user.auth_token;
+                
+                // Store demo profile in localStorage for dashboard
+                localStorage.setItem('demoProfile', JSON.stringify(user.profile));
+                
+                // Submit form
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const user_id = document.getElementById('user_id').value;
+            const auth_token = document.getElementById('auth_token').value;
+            
+            if (!user_id || !auth_token) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ user_id, auth_token })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Redirect to dashboard
+                    window.location.href = data.redirect;
+                } else {
+                    alert(data.error || 'Login failed');
+                }
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Login failed. Please try again.');
+            } finally {
+                // Hide loading
+                document.getElementById('loadingOverlay').classList.add('hidden');
+            }
+        });
+
+        // Auto-fill demo credentials on page load for easy testing
+        window.addEventListener('load', function() {
+            // You can set default values here for testing
+            // document.getElementById('user_id').value = 'demo_user_1';
+            // document.getElementById('auth_token').value = 'demo_token_123';
+        });
+    </script>
+</body>
+</html>

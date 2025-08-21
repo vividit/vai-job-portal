@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - VAI AI Agent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold gradient-text">VAI AI</h1>
+                    </div>
+                    <div class="ml-6 text-sm text-gray-500">
+                        <i class="fas fa-map-marker-alt mr-1"></i>India-First Job Search
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="userInfo" class="text-gray-700 text-sm">
+                        <i class="fas fa-user mr-1"></i>Loading...
+                    </span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition duration-300">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Welcome Section -->
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg p-6 mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-3xl font-bold mb-2">Welcome to Your AI Job Search Dashboard</h2>
+                    <p class="text-blue-100">Your AI agent is ready to find and apply to the best Indian tech jobs</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-4xl font-bold">🇮🇳</div>
+                    <div class="text-sm text-blue-100">Made for India</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow-md card-hover">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-play text-2xl text-green-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">Start AI Agent</h3>
+                        <p class="text-gray-600 text-sm">Begin autonomous job applications</p>
+                    </div>
+                </div>
+                <button id="startAgentBtn" class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition duration-300">
+                    <i class="fas fa-rocket mr-2"></i>Start Agent
+                </button>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md card-hover">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-search text-2xl text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">Search Jobs</h3>
+                        <p class="text-gray-600 text-sm">Find jobs manually</p>
+                    </div>
+                </div>
+                <button id="searchJobsBtn" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition duration-300">
+                    <i class="fas fa-search mr-2"></i>Search Now
+                </button>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md card-hover">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-chart-line text-2xl text-purple-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">View Stats</h3>
+                        <p class="text-gray-600 text-sm">Monitor your progress</p>
+                    </div>
+                </div>
+                <button id="viewStatsBtn" class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg transition duration-300">
+                    <i class="fas fa-chart-bar mr-2"></i>View Stats
+                </button>
+            </div>
+        </div>
+
+        <!-- Agent Status -->
+        <div id="agentStatus" class="bg-white p-6 rounded-lg shadow-md mb-8 hidden">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">
+                <i class="fas fa-robot mr-2 text-blue-600"></i>AI Agent Status
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                        <span class="text-green-600 font-medium">Agent Active</span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Applications Today:</span>
+                            <span id="applicationsToday" class="font-semibold">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Total Applications:</span>
+                            <span id="totalApplications" class="font-semibold">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Success Rate:</span>
+                            <span id="successRate" class="font-semibold">0%</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <button id="stopAgentBtn" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition duration-300 mb-4">
+                        <i class="fas fa-stop mr-2"></i>Stop Agent
+                    </button>
+                    <button id="runCycleBtn" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded-lg transition duration-300">
+                        <i class="fas fa-sync mr-2"></i>Run Manual Cycle
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Search Section -->
+        <div id="jobSearchSection" class="bg-white p-6 rounded-lg shadow-md mb-8 hidden">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">
+                <i class="fas fa-search mr-2 text-blue-600"></i>Search Jobs
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
+                    <input id="jobQuery" type="text" placeholder="e.g., Python Developer" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                    <select id="jobLocation" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Mumbai">Mumbai</option>
+                        <option value="Delhi">Delhi</option>
+                        <option value="Bangalore">Bangalore</option>
+                        <option value="Hyderabad">Hyderabad</option>
+                        <option value="Chennai">Chennai</option>
+                        <option value="Pune">Pune</option>
+                        <option value="Remote">Remote</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Limit</label>
+                    <input id="jobLimit" type="number" value="20" min="5" max="100" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <button id="searchJobsSubmitBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition duration-300">
+                <i class="fas fa-search mr-2"></i>Search Jobs
+            </button>
+        </div>
+
+        <!-- Job Results -->
+        <div id="jobResults" class="bg-white p-6 rounded-lg shadow-md mb-8 hidden">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">
+                <i class="fas fa-briefcase mr-2 text-green-600"></i>Job Results
+                <span id="jobCount" class="text-sm text-gray-500 ml-2">(0 jobs found)</span>
+            </h3>
+            <div id="jobList" class="space-y-4">
+                <!-- Jobs will be populated here -->
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">
+                <i class="fas fa-user mr-2 text-purple-600"></i>Your Profile
+            </h3>
+            <div id="profileContent" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="font-medium text-gray-900 mb-2">Personal Information</h4>
+                    <div class="space-y-2 text-sm">
+                        <div><span class="text-gray-600">Name:</span> <span id="profileName">Loading...</span></div>
+                        <div><span class="text-gray-600">Location:</span> <span id="profileLocation">Loading...</span></div>
+                        <div><span class="text-gray-600">Experience:</span> <span id="profileExperience">Loading...</span></div>
+                        <div><span class="text-gray-600">Education:</span> <span id="profileEducation">Loading...</span></div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900 mb-2">Skills</h4>
+                    <div id="profileSkills" class="flex flex-wrap gap-2">
+                        <!-- Skills will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Indian Job Sources Info -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">
+                <i class="fas fa-globe mr-2 text-yellow-600"></i>Indian Job Sources
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="text-center p-4 bg-blue-50 rounded-lg">
+                    <i class="fas fa-building text-3xl text-blue-600 mb-2"></i>
+                    <h4 class="font-medium text-gray-900">Naukri.com</h4>
+                    <p class="text-sm text-gray-600">Primary source</p>
+                </div>
+                <div class="text-center p-4 bg-green-50 rounded-lg">
+                    <i class="fas fa-search text-3xl text-green-600 mb-2"></i>
+                    <h4 class="font-medium text-gray-900">Indeed India</h4>
+                    <p class="text-sm text-gray-600">Secondary source</p>
+                </div>
+                <div class="text-center p-4 bg-purple-50 rounded-lg">
+                    <i class="fas fa-linkedin text-3xl text-purple-600 mb-2"></i>
+                    <h4 class="font-medium text-gray-900">LinkedIn India</h4>
+                    <p class="text-sm text-gray-600">Secondary source</p>
+                </div>
+                <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                    <i class="fas fa-monster text-3xl text-yellow-600 mb-2"></i>
+                    <h4 class="font-medium text-gray-900">Monster India</h4>
+                    <p class="text-sm text-gray-600">Tertiary source</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p class="text-gray-700">Processing...</p>
+        </div>
+    </div>
+
+    <!-- Job Application Modal -->
+    <div id="jobModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-gray-900">Apply to Job</h3>
+                <button onclick="closeJobModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="jobModalContent">
+                <!-- Job details will be populated here -->
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button onclick="closeJobModal()" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button id="applyToJobBtn" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                    <i class="fas fa-paper-plane mr-2"></i>Apply Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let currentJobs = [];
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserProfile();
+            checkAgentStatus();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Start AI Agent
+            document.getElementById('startAgentBtn').addEventListener('click', startAIAgent);
+            
+            // Stop AI Agent
+            document.getElementById('stopAgentBtn').addEventListener('click', stopAIAgent);
+            
+            // Run Manual Cycle
+            document.getElementById('runCycleBtn').addEventListener('click', runManualCycle);
+            
+            // Search Jobs
+            document.getElementById('searchJobsBtn').addEventListener('click', toggleJobSearch);
+            document.getElementById('searchJobsSubmitBtn').addEventListener('click', searchJobs);
+            
+            // View Stats
+            document.getElementById('viewStatsBtn').addEventListener('click', viewStats);
+        }
+
+        async function loadUserProfile() {
+            try {
+                const response = await fetch('/api/profile');
+                if (response.ok) {
+                    const profile = await response.json();
+                    displayProfile(profile);
+                } else {
+                    // Load demo profile from localStorage
+                    const demoProfile = localStorage.getItem('demoProfile');
+                    if (demoProfile) {
+                        const profile = JSON.parse(demoProfile);
+                        displayProfile(profile);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                // Load demo profile as fallback
+                const demoProfile = localStorage.getItem('demoProfile');
+                if (demoProfile) {
+                    const profile = JSON.parse(demoProfile);
+                    displayProfile(profile);
+                }
+            }
+        }
+
+        function displayProfile(profile) {
+            document.getElementById('profileName').textContent = profile.name || 'Not specified';
+            document.getElementById('profileLocation').textContent = profile.location || 'Not specified';
+            document.getElementById('profileExperience').textContent = profile.experience || 'Not specified';
+            document.getElementById('profileEducation').textContent = profile.education || 'Not specified';
+            
+            // Display skills
+            const skillsContainer = document.getElementById('profileSkills');
+            skillsContainer.innerHTML = '';
+            if (profile.skills && profile.skills.length > 0) {
+                profile.skills.forEach(skill => {
+                    const skillTag = document.createElement('span');
+                    skillTag.className = 'px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full';
+                    skillTag.textContent = skill;
+                    skillsContainer.appendChild(skillTag);
+                });
+            } else {
+                skillsContainer.innerHTML = '<span class="text-gray-500">No skills specified</span>';
+            }
+            
+            // Update user info in nav
+            document.getElementById('userInfo').innerHTML = `<i class="fas fa-user mr-1"></i>${profile.name || 'User'}`;
+        }
+
+        async function startAIAgent() {
+            showLoading();
+            try {
+                const response = await fetch('/api/agent/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('AI Agent started successfully!');
+                    checkAgentStatus();
+                } else {
+                    alert(data.error || 'Failed to start agent');
+                }
+            } catch (error) {
+                console.error('Error starting agent:', error);
+                alert('Failed to start agent');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function stopAIAgent() {
+            showLoading();
+            try {
+                const response = await fetch('/api/agent/stop', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('AI Agent stopped successfully!');
+                    checkAgentStatus();
+                } else {
+                    alert(data.error || 'Failed to stop agent');
+                }
+            } catch (error) {
+                console.error('Error stopping agent:', error);
+                alert('Failed to stop agent');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function runManualCycle() {
+            showLoading();
+            try {
+                const response = await fetch('/api/agent/run-cycle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('Manual cycle completed successfully!');
+                    checkAgentStatus();
+                } else {
+                    alert(data.error || 'Failed to run manual cycle');
+                }
+            } catch (error) {
+                console.error('Error running manual cycle:', error);
+                alert('Failed to run manual cycle');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function checkAgentStatus() {
+            try {
+                const response = await fetch('/api/agent/status');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.active) {
+                        document.getElementById('agentStatus').classList.remove('hidden');
+                        updateAgentStats(data.stats);
+                    } else {
+                        document.getElementById('agentStatus').classList.add('hidden');
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking agent status:', error);
+            }
+        }
+
+        function updateAgentStats(stats) {
+            document.getElementById('applicationsToday').textContent = stats.applications_today || 0;
+            document.getElementById('totalApplications').textContent = stats.total_applications || 0;
+            document.getElementById('successRate').textContent = `${Math.round((stats.success_rate || 0) * 100)}%`;
+        }
+
+        function toggleJobSearch() {
+            const section = document.getElementById('jobSearchSection');
+            section.classList.toggle('hidden');
+        }
+
+        async function searchJobs() {
+            const query = document.getElementById('jobQuery').value || 'Python Developer';
+            const location = document.getElementById('jobLocation').value;
+            const limit = document.getElementById('jobLimit').value || 20;
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/jobs/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, location, limit })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    currentJobs = data.jobs;
+                    displayJobs(data.jobs);
+                    document.getElementById('jobResults').classList.remove('hidden');
+                    document.getElementById('jobCount').textContent = `(${data.total} jobs found)`;
+                } else {
+                    alert(data.error || 'Failed to search jobs');
+                }
+            } catch (error) {
+                console.error('Error searching jobs:', error);
+                alert('Failed to search jobs');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function displayJobs(jobs) {
+            const jobList = document.getElementById('jobList');
+            jobList.innerHTML = '';
+            
+            jobs.forEach((job, index) => {
+                const jobCard = document.createElement('div');
+                jobCard.className = 'border border-gray-200 rounded-lg p-4 hover:shadow-md transition duration-300';
+                jobCard.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="text-lg font-semibold text-gray-900">${job.title}</h4>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${job.source}</span>
+                    </div>
+                    <div class="text-gray-600 mb-2">
+                        <i class="fas fa-building mr-1"></i>${job.company}
+                    </div>
+                    <div class="text-gray-600 mb-2">
+                        <i class="fas fa-map-marker-alt mr-1"></i>${job.location}
+                    </div>
+                    ${job.salary ? `<div class="text-gray-600 mb-2"><i class="fas fa-money-bill mr-1"></i>${job.salary}</div>` : ''}
+                    <div class="flex justify-between items-center mt-4">
+                        <button onclick="viewJobDetails(${index})" class="text-blue-600 hover:text-blue-800 text-sm">
+                            <i class="fas fa-eye mr-1"></i>View Details
+                        </button>
+                        <button onclick="applyToJob(${index})" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">
+                            <i class="fas fa-paper-plane mr-1"></i>Apply
+                        </button>
+                    </div>
+                `;
+                jobList.appendChild(jobCard);
+            });
+        }
+
+        function viewJobDetails(jobIndex) {
+            const job = currentJobs[jobIndex];
+            const modal = document.getElementById('jobModal');
+            const content = document.getElementById('jobModalContent');
+            
+            content.innerHTML = `
+                <h4 class="text-xl font-semibold text-gray-900 mb-4">${job.title}</h4>
+                <div class="space-y-3">
+                    <div><span class="font-medium">Company:</span> ${job.company}</div>
+                    <div><span class="font-medium">Location:</span> ${job.location}</div>
+                    ${job.salary ? `<div><span class="font-medium">Salary:</span> ${job.salary}</div>` : ''}
+                    ${job.experience ? `<div><span class="font-medium">Experience:</span> ${job.experience}</div>` : ''}
+                    ${job.skills && job.skills.length > 0 ? `<div><span class="font-medium">Skills:</span> ${job.skills.join(', ')}</div>` : ''}
+                    <div><span class="font-medium">Source:</span> ${job.source}</div>
+                    <div><span class="font-medium">URL:</span> <a href="${job.url}" target="_blank" class="text-blue-600 hover:underline">${job.url}</a></div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeJobModal() {
+            document.getElementById('jobModal').classList.add('hidden');
+        }
+
+        async function applyToJob(jobIndex) {
+            const job = currentJobs[jobIndex];
+            showLoading();
+            
+            try {
+                const response = await fetch('/api/jobs/apply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_id: jobIndex,
+                        title: job.title,
+                        company: job.company,
+                        location: job.location,
+                        url: job.url,
+                        source: job.source
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('Application submitted successfully!');
+                    closeJobModal();
+                } else {
+                    alert(data.error || 'Failed to submit application');
+                }
+            } catch (error) {
+                console.error('Error applying to job:', error);
+                alert('Failed to submit application');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function viewStats() {
+            alert('Statistics feature coming soon!');
+        }
+
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('jobModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeJobModal();
+            }
+        });
+    </script>
+</body>
+</html>
+

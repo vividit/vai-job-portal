@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard · Meta‑Job</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 650px; margin: 30px auto; }
+    input, select, textarea { width: 100%; margin: 4px 0; }
+    pre { background: #f4f4f4; padding: 8px; overflow-x: auto; }
+    button { margin-top: 6px; }
+    section { margin-bottom: 32px; }
+  </style>
+</head>
+<body>
+  <h2>Dashboard</h2>
+  <div id="status">Authenticating…</div>
+
+  <!-- Profile viewer -->
+  <section>
+    <h3>Your profile</h3>
+    <pre id="profileBox">(loading…)</pre>
+
+    <h4>Quick update</h4>
+    <form id="profileForm">
+      <input name="resumeHeadline" placeholder="Resume headline" />
+      <input name="location" placeholder="Location (city, country)" />
+      <input name="skills" placeholder="Skills (comma‑separated)" />
+      <button>Update profile</button>
+    </form>
+  </section>
+
+  <!-- Create job -->
+  <section>
+    <h3>Create job (recruiter/admin)</h3>
+    <form id="createJobForm">
+      <input name="title" placeholder="Job title" required />
+      <input name="company" placeholder="Company" required />
+      <input name="location" placeholder="Location" />
+      <select name="type">
+        <option value="full-time">Full‑time</option>
+        <option value="part-time">Part‑time</option>
+        <option value="remote">Remote</option>
+      </select>
+      <input name="salary" placeholder="Salary" />
+      <textarea name="description" placeholder="Description"></textarea>
+      <button>Create job</button>
+    </form>
+  </section>
+
+  <!-- Job list -->
+  <section>
+    <h3>All jobs</h3>
+    <button id="refreshJobs">Refresh list</button>
+    <pre id="jobList">(empty)</pre>
+  </section>
+
+  <button id="logoutBtn">Logout</button>
+
+  <!-- ---------- INLINE JS ---------- -->
+  <script>
+  /* ------ Persist JWT from ?token=... ------ */
+  (function () {
+    const url = new URL(location.href);
+    const qp  = url.searchParams.get("token");
+    if (qp) {
+      localStorage.setItem("jwt", qp);
+      url.searchParams.delete("token");
+      history.replaceState({}, "", url.pathname);
+    }
+  })();
+
+  const API       = "http://localhost:5000/api/operate";
+  let   jwt       = localStorage.getItem("jwt");
+  const status    = document.getElementById("status");
+  const profileEl = document.getElementById("profileBox");
+  const jobEl     = document.getElementById("jobList");
+
+  if (!jwt) {
+    status.textContent = "❌  Not authenticated — please log in.";
+    profileEl.textContent = "(no data)";
+  } else {
+    status.textContent = "🔒  Authenticated";
+    loadProfile();
+  }
+
+  async function operate(body) {
+    const res = await fetch(API, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(jwt && { Authorization: `Bearer ${jwt}` })
+      },
+      body: JSON.stringify(body)
+    });
+    return res.json();
+  }
+
+  async function loadProfile() {
+    const data = await operate({ name: "getUser", payload: {} });
+    profileEl.textContent = JSON.stringify(data, null, 2);
+  }
+
+  /* ---- profile quick update ---- */
+  document.getElementById("profileForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!jwt) return alert("Login first");
+    const fd = new FormData(e.target);
+
+    const payload = {
+      "profile.resumeHeadline": fd.get("resumeHeadline"),
+      "profile.location": fd.get("location"),
+      "profile.skills": fd.get("skills")
+    };
+
+    const res = await operate({ name: "updateUserProfile", payload });
+    alert("Updated!");
+    profileEl.textContent = JSON.stringify(res, null, 2);
+  });
+
+  /* ---- create job ---- */
+  document.getElementById("createJobForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!jwt) return alert("Login first");
+
+    const fd = new FormData(e.target);
+    const payload = Object.fromEntries(fd.entries());
+    const res = await operate({ name: "createJob", payload });
+    alert(JSON.stringify(res, null, 2));
+  });
+
+  /* ---- refresh jobs ---- */
+  document.getElementById("refreshJobs").addEventListener("click", async () => {
+    const data = await operate({ name: "listJobs", payload: {} });
+    jobEl.textContent = JSON.stringify(data, null, 2);
+  });
+
+  /* ---- logout ---- */
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    localStorage.removeItem("jwt");
+    location.href = "index.html";
+  });
+  </script>
+</body>
+</html>

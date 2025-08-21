@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin User Management Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background-color: #fafafa;
+        }
+        
+        .section h3 {
+            margin-top: 0;
+            color: #444;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        button.danger {
+            background-color: #dc3545;
+        }
+        
+        button.danger:hover {
+            background-color: #c82333;
+        }
+        
+        button.warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        button.warning:hover {
+            background-color: #e0a800;
+        }
+        
+        .response {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        
+        .auth-section {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .users-table th,
+        .users-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .users-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        .users-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .inline-button {
+            padding: 5px 10px;
+            font-size: 12px;
+            margin: 2px;
+        }
+        
+        #usersList {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Admin User Management Test Interface</h1>
+        
+        <div class="auth-section">
+            <h3>🔐 Authentication</h3>
+            <div class="form-group">
+                <label for="adminToken">Admin JWT Token:</label>
+                <input type="password" id="adminToken" placeholder="Enter your admin JWT token">
+                <small>Get this from logging in as an admin user</small>
+            </div>
+            <button onclick="testConnection()">Test Connection</button>
+        </div>
+
+        <!-- Create User Section -->
+        <div class="section">
+            <h3>➕ Create New User</h3>
+            <div class="form-group">
+                <label for="createName">Name:</label>
+                <input type="text" id="createName" placeholder="John Doe">
+            </div>
+            <div class="form-group">
+                <label for="createEmail">Email:</label>
+                <input type="email" id="createEmail" placeholder="john@example.com">
+            </div>
+            <div class="form-group">
+                <label for="createPassword">Password:</label>
+                <input type="password" id="createPassword" placeholder="minimum 6 characters">
+            </div>
+            <div class="form-group">
+                <label for="createRole">Role:</label>
+                <select id="createRole">
+                    <option value="jobseeker">Job Seeker</option>
+                    <option value="recruiter">Recruiter</option>
+                    <option value="consultant">Consultant</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="createStatus">Status:</label>
+                <select id="createStatus">
+                    <option value="active">Active</option>
+                    <option value="disabled">Disabled</option>
+                </select>
+            </div>
+            <button onclick="createUser()">Create User</button>
+            <div id="createResponse" class="response" style="display: none;"></div>
+        </div>
+
+        <!-- Get Users Section -->
+        <div class="section">
+            <h3>👥 User Management</h3>
+            <button onclick="getAllUsers()">Get All Users</button>
+            <button onclick="getUserStats()">Get User Statistics</button>
+            <button onclick="getUsersByRole('jobseeker')">Get Job Seekers</button>
+            <button onclick="getUsersByRole('recruiter')">Get Recruiters</button>
+            <button onclick="getUsersByRole('admin')">Get Admins</button>
+            <div id="usersList"></div>
+            <div id="usersResponse" class="response" style="display: none;"></div>
+        </div>
+
+        <!-- Update User Section -->
+        <div class="section">
+            <h3>✏️ Update User</h3>
+            <div class="form-group">
+                <label for="updateUserId">User ID:</label>
+                <input type="text" id="updateUserId" placeholder="User ID to update">
+            </div>
+            <div class="form-group">
+                <label for="updateName">New Name (optional):</label>
+                <input type="text" id="updateName" placeholder="Updated name">
+            </div>
+            <div class="form-group">
+                <label for="updateStatus">New Status (optional):</label>
+                <select id="updateStatus">
+                    <option value="">-- No Change --</option>
+                    <option value="active">Active</option>
+                    <option value="disabled">Disabled</option>
+                </select>
+            </div>
+            <button onclick="updateUser()">Update User</button>
+            <div id="updateResponse" class="response" style="display: none;"></div>
+        </div>
+
+        <!-- Password Management Section -->
+        <div class="section">
+            <h3>🔑 Password Management</h3>
+            <div class="form-group">
+                <label for="passwordUserId">User ID:</label>
+                <input type="text" id="passwordUserId" placeholder="User ID for password reset">
+            </div>
+            <div class="form-group">
+                <label for="newPassword">New Password:</label>
+                <input type="password" id="newPassword" placeholder="minimum 6 characters">
+            </div>
+            <button onclick="resetPassword()" class="warning">Reset Password</button>
+            <button onclick="changePassword()" class="warning">Change Password (Alt)</button>
+            <div id="passwordResponse" class="response" style="display: none;"></div>
+        </div>
+
+        <!-- Role Management Section -->
+        <div class="section">
+            <h3>👑 Role Management</h3>
+            <div class="form-group">
+                <label for="roleUserId">User ID:</label>
+                <input type="text" id="roleUserId" placeholder="User ID for role change">
+            </div>
+            <div class="form-group">
+                <label for="newRole">New Role:</label>
+                <select id="newRole">
+                    <option value="jobseeker">Job Seeker</option>
+                    <option value="recruiter">Recruiter</option>
+                    <option value="consultant">Consultant</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <button onclick="changeUserRole()">Change Role</button>
+            <div id="roleResponse" class="response" style="display: none;"></div>
+        </div>
+
+        <!-- Delete User Section -->
+        <div class="section">
+            <h3>🗑️ Delete User</h3>
+            <div class="form-group">
+                <label for="deleteUserId">User ID:</label>
+                <input type="text" id="deleteUserId" placeholder="User ID to delete">
+            </div>
+            <button onclick="deleteUser()" class="danger">Delete User</button>
+            <div id="deleteResponse" class="response" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        
+        function getToken() {
+            return document.getElementById('adminToken').value;
+        }
+        
+        function showResponse(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `response ${isError ? 'error' : 'success'}`;
+            element.textContent = JSON.stringify(data, null, 2);
+        }
+        
+        function showInfo(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = 'response info';
+            element.textContent = message;
+        }
+        
+        async function makeRequest(url, options = {}) {
+            const token = getToken();
+            if (!token) {
+                alert('Please enter your admin JWT token first');
+                return null;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                        ...options.headers
+                    },
+                    ...options
+                });
+                
+                const data = await response.json();
+                return { status: response.status, data };
+            } catch (error) {
+                return { status: 500, data: { error: error.message } };
+            }
+        }
+        
+        async function testConnection() {
+            showInfo('createResponse', 'Testing connection...');
+            const result = await makeRequest('/users');
+            if (result) {
+                if (result.status === 200) {
+                    showResponse('createResponse', { message: 'Connection successful!', userCount: result.data.data.length });
+                } else {
+                    showResponse('createResponse', result.data, true);
+                }
+            }
+        }
+        
+        async function createUser() {
+            const userData = {
+                name: document.getElementById('createName').value,
+                email: document.getElementById('createEmail').value,
+                password: document.getElementById('createPassword').value,
+                role: document.getElementById('createRole').value,
+                status: document.getElementById('createStatus').value
+            };
+            
+            if (!userData.name || !userData.email || !userData.password) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            const result = await makeRequest('/users', {
+                method: 'POST',
+                body: JSON.stringify(userData)
+            });
+            
+            if (result) {
+                showResponse('createResponse', result.data, result.status !== 201);
+                if (result.status === 201) {
+                    // Clear form
+                    document.getElementById('createName').value = '';
+                    document.getElementById('createEmail').value = '';
+                    document.getElementById('createPassword').value = '';
+                }
+            }
+        }
+        
+        async function getAllUsers() {
+            const result = await makeRequest('/users');
+            if (result) {
+                showResponse('usersResponse', result.data, result.status !== 200);
+                if (result.status === 200) {
+                    displayUsersTable(result.data.data);
+                }
+            }
+        }
+        
+        async function getUserStats() {
+            const result = await makeRequest('/users/stats');
+            if (result) {
+                showResponse('usersResponse', result.data, result.status !== 200);
+            }
+        }
+        
+        async function getUsersByRole(role) {
+            const result = await makeRequest(`/users/role/${role}`);
+            if (result) {
+                showResponse('usersResponse', result.data, result.status !== 200);
+                if (result.status === 200) {
+                    displayUsersTable(result.data.data);
+                }
+            }
+        }
+        
+        function displayUsersTable(users) {
+            const container = document.getElementById('usersList');
+            if (!users || users.length === 0) {
+                container.innerHTML = '<p>No users found</p>';
+                return;
+            }
+            
+            let html = `
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            users.forEach(user => {
+                html += `
+                    <tr>
+                        <td><small>${user._id}</small></td>
+                        <td>${user.name}</td>
+                        <td>${user.email}</td>
+                        <td><span style="background: #e3f2fd; padding: 2px 6px; border-radius: 3px;">${user.role}</span></td>
+                        <td><span style="background: ${user.status === 'active' ? '#e8f5e8' : '#fff3cd'}; padding: 2px 6px; border-radius: 3px;">${user.status}</span></td>
+                        <td>
+                            <button class="inline-button" onclick="fillUpdateForm('${user._id}', '${user.name}', '${user.status}')">Edit</button>
+                            <button class="inline-button warning" onclick="fillPasswordForm('${user._id}')">Reset Pwd</button>
+                            <button class="inline-button danger" onclick="fillDeleteForm('${user._id}')">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        
+        function fillUpdateForm(userId, name, status) {
+            document.getElementById('updateUserId').value = userId;
+            document.getElementById('updateName').value = name;
+            document.getElementById('updateStatus').value = status;
+        }
+        
+        function fillPasswordForm(userId) {
+            document.getElementById('passwordUserId').value = userId;
+        }
+        
+        function fillDeleteForm(userId) {
+            document.getElementById('deleteUserId').value = userId;
+        }
+        
+        async function updateUser() {
+            const userId = document.getElementById('updateUserId').value;
+            const updateData = {};
+            
+            const name = document.getElementById('updateName').value;
+            const status = document.getElementById('updateStatus').value;
+            
+            if (name) updateData.name = name;
+            if (status) updateData.status = status;
+            
+            if (!userId) {
+                alert('Please enter a user ID');
+                return;
+            }
+            
+            if (Object.keys(updateData).length === 0) {
+                alert('Please provide at least one field to update');
+                return;
+            }
+            
+            const result = await makeRequest(`/users/${userId}`, {
+                method: 'PUT',
+                body: JSON.stringify(updateData)
+            });
+            
+            if (result) {
+                showResponse('updateResponse', result.data, result.status !== 200);
+            }
+        }
+        
+        async function resetPassword() {
+            const userId = document.getElementById('passwordUserId').value;
+            const newPassword = document.getElementById('newPassword').value;
+            
+            if (!userId || !newPassword) {
+                alert('Please enter both user ID and new password');
+                return;
+            }
+            
+            const result = await makeRequest(`/users/${userId}/reset-password`, {
+                method: 'PUT',
+                body: JSON.stringify({ newPassword })
+            });
+            
+            if (result) {
+                showResponse('passwordResponse', result.data, result.status !== 200);
+            }
+        }
+        
+        async function changePassword() {
+            const userId = document.getElementById('passwordUserId').value;
+            const newPassword = document.getElementById('newPassword').value;
+            
+            if (!userId || !newPassword) {
+                alert('Please enter both user ID and new password');
+                return;
+            }
+            
+            const result = await makeRequest(`/users/${userId}/password`, {
+                method: 'PUT',
+                body: JSON.stringify({ password: newPassword })
+            });
+            
+            if (result) {
+                showResponse('passwordResponse', result.data, result.status !== 200);
+            }
+        }
+        
+        async function changeUserRole() {
+            const userId = document.getElementById('roleUserId').value;
+            const newRole = document.getElementById('newRole').value;
+            
+            if (!userId) {
+                alert('Please enter a user ID');
+                return;
+            }
+            
+            const result = await makeRequest(`/users/${userId}/role`, {
+                method: 'PUT',
+                body: JSON.stringify({ role: newRole })
+            });
+            
+            if (result) {
+                showResponse('roleResponse', result.data, result.status !== 200);
+            }
+        }
+        
+        async function deleteUser() {
+            const userId = document.getElementById('deleteUserId').value;
+            
+            if (!userId) {
+                alert('Please enter a user ID');
+                return;
+            }
+            
+            if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+                return;
+            }
+            
+            const result = await makeRequest(`/users/${userId}`, {
+                method: 'DELETE'
+            });
+            
+            if (result) {
+                showResponse('deleteResponse', result.data, result.status !== 200);
+            }
+        }
+    </script>
+</body>
+</html>

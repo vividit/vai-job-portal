@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sign Up · Meta‑Job</title>
+  <style>
+    body { font-family: sans-serif; max-width: 350px; margin: 40px auto; }
+    input { width: 100%; margin: 4px 0; }
+  </style>
+</head>
+<body>
+  <h2>Create Account</h2>
+
+  <form id="signupForm">
+    <input name="name"     placeholder="Full name"   required />
+    <input name="email"    placeholder="Email"       required />
+    <input name="password" type="password" placeholder="Password" required />
+    <button type="submit">Sign Up</button>
+  </form>
+
+  <p>Already have an account? <a href="login.html">Log in</a></p>
+
+  <script>
+    document.getElementById("signupForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form  = new FormData(e.target);
+      const body  = Object.fromEntries(form.entries());
+
+      const res   = await fetch("http://localhost:5000/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body:   JSON.stringify(body)
+      });
+      const json  = await res.json();
+
+      if (json.token) {
+        localStorage.setItem("jwt", json.token);
+        alert("Signup successful!");
+        location.href = "dashboard.html";
+      } else {
+        alert(json.error || "Signup failed");
+      }
+    });
+  </script>
+</body>
+</html>

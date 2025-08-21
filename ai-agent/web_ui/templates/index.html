@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAI AI - Autonomous Job Application Agent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold gradient-text">VAI AI</h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/login" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-300">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg text-white py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-5xl md:text-6xl font-bold mb-6">
+                AI-Powered Job Applications
+                <span class="block text-yellow-300">Made for India</span>
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 text-blue-100">
+                Automatically find and apply to 100+ jobs daily using AI matching
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/login" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-8 py-4 rounded-lg text-lg font-semibold transition duration-300">
+                    <i class="fas fa-rocket mr-2"></i>Get Started Free
+                </a>
+                <a href="#features" class="border-2 border-white hover:bg-white hover:text-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold transition duration-300">
+                    <i class="fas fa-info-circle mr-2"></i>Learn More
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                    Why Choose VAI AI?
+                </h2>
+                <p class="text-xl text-gray-600">
+                    The most advanced autonomous job application system designed specifically for Indian job market
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="bg-gray-50 p-8 rounded-xl card-hover">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-robot text-3xl text-blue-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">AI-Powered Matching</h3>
+                    <p class="text-gray-600">
+                        Advanced AI analyzes your profile and finds the perfect job matches from top Indian companies
+                    </p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="bg-gray-50 p-8 rounded-xl card-hover">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-map-marker-alt text-3xl text-green-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">India-First Approach</h3>
+                    <p class="text-gray-600">
+                        Focus on Indian job portals: Naukri, Indeed India, LinkedIn India, Monster, Shine, TimesJobs
+                    </p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="bg-gray-50 p-8 rounded-xl card-hover">
+                    <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-bolt text-3xl text-purple-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">100+ Applications/Day</h3>
+                    <p class="text-gray-600">
+                        Automatically apply to 100+ jobs daily with personalized cover letters and smart scheduling
+                    </p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="bg-gray-50 p-8 rounded-xl card-hover">
+                    <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-shield-alt text-3xl text-yellow-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Anti-Detection</h3>
+                    <p class="text-gray-600">
+                        Advanced techniques to avoid bot detection and ensure your applications look human
+                    </p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="bg-gray-50 p-8 rounded-xl card-hover">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-chart-line text-3xl text-red-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Smart Analytics</h3>
+                    <p class="text-gray-600">
+                        Track application success rates, response rates, and optimize your job search strategy
+                    </p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="bg-gray-50 p-8 rounded-xl card-hover">
+                    <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-clock text-3xl text-indigo-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">24/7 Automation</h3>
+                    <p class="text-gray-600">
+                        Set it and forget it. The AI agent works around the clock to find and apply to jobs
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Indian Job Market Section -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                    Optimized for Indian Job Market
+                </h2>
+                <p class="text-xl text-gray-600">
+                    Built specifically for Indian tech professionals and companies
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-6">Top Indian Cities</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <span class="text-gray-700">Mumbai</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <span class="text-gray-700">Delhi</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <span class="text-gray-700">Bangalore</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <span class="text-gray-700">Hyderabad</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <span class="text-gray-700">Chennai</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <span class="text-gray-700">Pune</span>
+                        </div>
+                    </div>
+
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-6 mt-8">Popular Job Roles</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-code text-blue-500"></i>
+                            <span class="text-gray-700">Python Developer</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-code text-blue-500"></i>
+                            <span class="text-gray-700">Java Developer</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-code text-blue-500"></i>
+                            <span class="text-gray-700">React Developer</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-code text-blue-500"></i>
+                            <span class="text-gray-700">Full Stack</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-code text-blue-500"></i>
+                            <span class="text-gray-700">Data Scientist</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-code text-blue-500"></i>
+                            <span class="text-gray-700">DevOps Engineer</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-6">Job Sources</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-globe text-blue-600"></i>
+                                <span class="font-medium">Naukri.com</span>
+                            </div>
+                            <span class="text-sm text-blue-600">Primary</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-globe text-green-600"></i>
+                                <span class="font-medium">Indeed India</span>
+                            </div>
+                            <span class="text-sm text-green-600">Secondary</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-purple-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-globe text-purple-600"></i>
+                                <span class="font-medium">LinkedIn India</span>
+                            </div>
+                            <span class="text-sm text-purple-600">Secondary</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-yellow-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-globe text-yellow-600"></i>
+                                <span class="font-medium">Monster India</span>
+                            </div>
+                            <span class="text-sm text-yellow-600">Tertiary</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-blue-600">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl font-bold text-white mb-6">
+                Ready to Transform Your Job Search?
+            </h2>
+            <p class="text-xl text-blue-100 mb-8">
+                Join thousands of Indian professionals who are already using VAI AI to land their dream jobs
+            </p>
+            <a href="/login" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-8 py-4 rounded-lg text-lg font-semibold transition duration-300 inline-block">
+                <i class="fas fa-rocket mr-2"></i>Start Your AI Job Search Now
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold gradient-text mb-4">VAI AI</h3>
+                    <p class="text-gray-400">
+                        The most advanced autonomous job application system designed for Indian professionals.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Features</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>AI Job Matching</li>
+                        <li>Indian Job Sources</li>
+                        <li>Auto Applications</li>
+                        <li>Smart Scheduling</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>Documentation</li>
+                        <li>API Reference</li>
+                        <li>Contact Us</li>
+                        <li>FAQ</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Legal</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>Privacy Policy</li>
+                        <li>Terms of Service</li>
+                        <li>Cookie Policy</li>
+                        <li>GDPR</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 VAI AI. All rights reserved. Made with ❤️ for India</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.card-hover').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+# OpenAI API Configuration
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Backend API Configuration
+BACKEND_API_URL=http://localhost:5000
+
+# Optional: Custom Configuration
+# MAX_JOBS_PER_DAY=100
+# MAX_APPLICATIONS_PER_HOUR=10
+# MIN_MATCH_SCORE=0.7
+# HEADLESS_MODE=true
+# USER_AGENT_ROTATION=true
+# PROXY_ROTATION=false
+
+# Logging Configuration
+LOG_LEVEL=INFO
+LOG_FILE=ai_agent.log
+
+# Database Configuration
+SQLITE_DB=ai_agent.db
+
+# AI Model Configuration
+AI_MODEL=gpt-3.5-turbo
+MAX_TOKENS=1000
+TEMPERATURE=0.3
