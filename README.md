@@ -30,56 +30,40 @@ Before starting, make sure your PC has the following installed:
    - VS Code: https://code.visualstudio.com/
 
 ## 🚀 Complete Implementation Steps
+Repository Structure
 
-### Step 1: Download the Project
-```bash
-# Option A: Clone from GitHub (if you have access)
-git clone https://github.com/vividitcorporation/vai-job-portal.git
-cd meta-job-backend
+Backend: https://github.com/vividit/vai-job-portal
+Frontend: https://github.com/vividit/vai-job-portal-frontend
 
-# Option B: Download ZIP file
-# 1. Go to the GitHub repository
-# 2. Click "Code" → "Download ZIP"
-# 3. Extract to your desired folder
-# 4. Rename folder to "meta-job-backend"
-# 5. Open terminal/command prompt in that folder
-```
+Setup Instructions
+1. Clone the Backend Repository
+bashgit clone https://github.com/vividit/vai-job-portal.git
+cd vai-job-portal
+2. Clone the Frontend Inside Backend
+bash# Clone frontend repository inside the backend directory
+git clone https://github.com/vividit/vai-job-portal-frontend.git vai-frontend
+cd vai-frontend
+3. Setup Frontend
+bash# Install frontend dependencies
+npm install
 
-### Step 2: Set Up Backend Environment
-```bash
-# Navigate to project root
-cd meta-job-backend
+# Run frontend development server
+npm run dev
+The frontend will typically run on http://localhost:3000
+4. Setup Backend
+bash# Go back to backend directory
+cd ..
 
 # Install backend dependencies
 npm install
 
-# Create environment configuration file
-# Create a new file called ".env" in the root directory
-```
+# Create .env file with your configuration
+# Copy .env.example if available, or create new .env file
+cp .env.example .env
 
 #### Create `.env` File
 Create a file named `.env` in the root directory with these settings:
 
-```env
-# Database Configuration
-MONGO_URI=mongodb+srv://VividIT:VividItCorp2025@cluster0.jaaxwix.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
-
-# Server Configuration
-PORT=5000
-CLIENT_URL=http://localhost:3000
-
-# Session Secret
-SESSION_SECRET=your_super_secure_session_secret_here
-
-# OAuth Configuration (Optional - for Google/GitHub login)
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-GITHUB_CLIENT_ID=your_github_client_id
-GITHUB_CLIENT_SECRET=your_github_client_secret
-
-# JWT Secret
-JWT_SECRET=your_jwt_secret_key
-```
 
 **Important Notes:**
 - **For MongoDB Atlas**: Use the provided connection string or create your own
@@ -224,77 +208,171 @@ npm start          # Start production server
 npm run lint       # Check code quality
 ```
 
-## 📁 Project Structure Explained
+How to Create Google & GitHub OAuth Applications
+Google OAuth Setup
+Step 1: Go to Google Cloud Console
 
-```
-meta-job-backend/
-├── src/                    # Backend source code
-│   ├── controllers/        # API controllers (handles requests)
-│   ├── models/            # Database models (data structure)
-│   ├── routes/            # API routes (endpoints)
-│   ├── config/            # Configuration files
-│   └── index.js           # Main server file
-├── vivid-frontend/        # Frontend application
-│   ├── src/
-│   │   ├── app/           # Next.js pages (routes)
-│   │   ├── components/    # React components (UI)
-│   │   └── lib/           # Utility functions
-│   └── package.json
-├── scripts/               # Database scripts
-├── package.json           # Backend dependencies
-└── .env                   # Environment variables
-```
+Visit Google Cloud Console
+Sign in with your Google account
 
-## 🌟 Features You Can Test
+Step 2: Create or Select a Project
 
-### User Management
-- **Sign Up**: Create new user accounts
-- **Login**: Authenticate existing users
-- **Role-based Access**: Different dashboards for different user types
+Click on the project dropdown (top left)
+Click "New Project" or select an existing one
+Give your project a name (e.g., "Vai Job Portal")
+Click "Create"
 
-### Job Portal Features
-- **Browse Jobs**: View available positions
-- **Post Jobs**: Recruiters can create job listings
-- **Apply for Jobs**: Job seekers can submit applications
+Step 3: Enable Google+ API
 
-### Admin Features
-- **User Management**: View and manage all users
-- **System Configuration**: Adjust platform settings
-- **Job Crawling**: Automated job scraping
+In the sidebar, go to "APIs & Services" > "Library"
+Search for "Google+ API"
+Click on it and press "Enable"
+Also enable "Google OAuth2 API" if available
 
-## 🚀 Next Steps After Implementation
+Step 4: Configure OAuth Consent Screen
 
-1. **Customize the Application**
-   - Modify colors and branding in `vivid-frontend/src/app/globals.css`
-   - Update company information in components
-   - Adjust database models if needed
+Go to "APIs & Services" > "OAuth consent screen"
+Choose "External" (unless you have a Google Workspace)
+Fill in required fields:
 
-2. **Add Your Own Features**
-   - Create new API endpoints in `src/routes/`
-   - Add new pages in `vivid-frontend/src/app/`
-   - Implement new components in `vivid-frontend/src/components/`
+App name: Vai Job Portal
+User support email: Your email
+Developer contact: Your email
 
-3. **Deploy to Production**
-   - Set up production MongoDB database
-   - Configure production environment variables
-   - Deploy backend to hosting service (Heroku, AWS, etc.)
-   - Deploy frontend to Vercel, Netlify, or similar
 
-## 📞 Getting Help
+Click "Save and Continue"
+Skip "Scopes" for now, click "Save and Continue"
+Add test users if needed, click "Save and Continue"
 
-If you encounter issues:
-1. **Check the console** for error messages
-2. **Verify all prerequisites** are installed correctly
-3. **Double-check environment variables** in `.env` files
-4. **Ensure both servers** are running (backend + frontend)
-5. **Check MongoDB connection** and service status
+Step 5: Create OAuth Credentials
 
-## 📄 License
+Go to "APIs & Services" > "Credentials"
+Click "Create Credentials" > "OAuth client ID"
+Choose "Web application"
+Set name: "Vai Job Portal Web Client"
+Add Authorized redirect URIs:
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+http://localhost:5000/auth/google/callback
+http://localhost:3000/auth/google/callback (if frontend handles it)
 
----
 
-**🎉 Congratulations! You've successfully implemented the VAI AI Job Portal on your device!**
+Click "Create"
+Copy the Client ID and Client Secret - these go in your .env file
 
-**Next: Open http://localhost:3000 and start exploring your new job portal!**
+
+GitHub OAuth Setup
+Step 1: Go to GitHub Settings
+
+Go to GitHub
+Click your profile picture (top right)
+Select "Settings"
+
+Step 2: Create OAuth App
+
+In the left sidebar, click "Developer settings"
+Click "OAuth Apps"
+Click "New OAuth App"
+
+Step 3: Fill in Application Details
+
+Application name: Vai Job Portal
+Homepage URL: http://localhost:3000
+Application description: Job portal with OAuth authentication
+Authorization callback URL: http://localhost:5000/auth/github/callback
+
+Step 4: Register Application
+
+Click "Register application"
+Copy the Client ID - this goes in your .env file
+Click "Generate a new client secret"
+Copy the Client Secret - this also goes in your .env file
+
+
+MongoDB Atlas Setup
+Step 1: Create MongoDB Atlas Account
+
+Go to MongoDB Atlas
+Sign up for free account
+Choose "Build a Database"
+
+Step 2: Create Cluster
+
+Choose "Free" tier (M0 Sandbox)
+Select cloud provider and region
+Name your cluster (e.g., "vai-job-portal")
+Click "Create Cluster"
+
+Step 3: Create Database User
+
+Go to "Database Access" in left sidebar
+Click "Add New Database User"
+Choose "Password" authentication
+Set username and password (remember these!)
+Set user privileges to "Read and write to any database"
+Click "Add User"
+
+Step 4: Configure Network Access
+
+Go to "Network Access" in left sidebar
+Click "Add IP Address"
+For development, click "Allow Access from Anywhere" (0.0.0.0/0)
+For production, add specific IP addresses
+Click "Confirm"
+
+Step 5: Get Connection String
+
+Go to "Database" in left sidebar
+Click "Connect" on your cluster
+Choose "Connect your application"
+Copy the connection string
+Replace <password> with your database user password
+Replace <dbname> with your database name (e.g., "vai-job-portal")
+
+Example: mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/vai-job-portal?retryWrites=true&w=majority
+
+Generate JWT & Session Secrets
+Option 1: Using Node.js
+javascript// Run this in Node.js console or create a script
+const crypto = require('crypto');
+
+// Generate JWT Secret
+const jwtSecret = crypto.randomBytes(64).toString('hex');
+console.log('JWT_SECRET:', jwtSecret);
+
+// Generate Session Secret
+const sessionSecret = crypto.randomBytes(64).toString('hex');
+console.log('SESSION_SECRET:', sessionSecret);
+Option 2: Using Online Generator
+
+Go to Random.org or similar
+Generate a long random string (64+ characters)
+Use for JWT_SECRET and SESSION_SECRET
+
+Option 3: Using Command Line
+bash# On Mac/Linux
+openssl rand -hex 64
+
+# On Windows PowerShell
+[System.Web.Security.Membership]::GeneratePassword(64, 0)
+
+Final .env File Structure
+env# SERVER CONFIGURATION
+PORT=5000
+NODE_ENV=development
+SERVER_URL=http://localhost:5000
+CLIENT_URL=http://localhost:3000
+
+# MONGODB ATLAS DATABASE
+MONGO_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/vai-job-portal?retryWrites=true&w=majority
+
+# SECRETS
+JWT_SECRET=your_generated_jwt_secret_here
+SESSION_SECRET=your_generated_session_secret_here
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your_google_client_id_from_console
+GOOGLE_CLIENT_SECRET=your_google_client_secret_from_console
+
+# GitHub OAuth
+GITHUB_CLIENT_ID=your_github_client_id_from_settings
+GITHUB_CLIENT_SECRET=your_github_client_secret_from_settings
