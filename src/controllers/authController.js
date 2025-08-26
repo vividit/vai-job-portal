@@ -54,12 +54,18 @@ export const loginUser = async (req, res) => {
     console.log('Login successful for user:', user.email);
     
     res.json({ 
+      success: true,
       user: {
-        _id: user._id,
-        name: user.name,
+        id: user._id,
         email: user.email,
-        role: user.role,
-        status: user.status
+        firstName: user.name ? user.name.split(' ')[0] : '',
+        lastName: user.name ? user.name.split(' ').slice(1).join(' ') : '',
+        userType: user.role || user.userType,
+        company: user.profile?.company || '',
+        jobTitle: user.profile?.resumeHeadline || '',
+        avatar: user.profile?.avatar || '',
+        isVerified: user.status === 'active',
+        createdAt: user.createdAt
       }, 
       token 
     });
@@ -108,12 +114,18 @@ export const registerUser = async (req, res) => {
     console.log('User created successfully:', { id: user._id, email: user.email, role: user.role });
     
     res.status(201).json({ 
+      success: true,
       user: {
-        _id: user._id,
-        name: user.name,
+        id: user._id,
         email: user.email,
-        role: user.role,
-        status: user.status
+        firstName: user.name ? user.name.split(' ')[0] : '',
+        lastName: user.name ? user.name.split(' ').slice(1).join(' ') : '',
+        userType: user.role || user.userType,
+        company: user.profile?.company || '',
+        jobTitle: user.profile?.resumeHeadline || '',
+        avatar: user.profile?.avatar || '',
+        isVerified: user.status === 'active',
+        createdAt: user.createdAt
       }, 
       token 
     });
@@ -128,16 +140,56 @@ export const getCurrentUser = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ success: false, error: "User not found" });
     }
-    res.json({ user });
+    
+    res.json({ 
+      success: true,
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.name ? user.name.split(' ')[0] : '',
+        lastName: user.name ? user.name.split(' ').slice(1).join(' ') : '',
+        userType: user.role || user.userType,
+        company: user.profile?.company || '',
+        jobTitle: user.profile?.resumeHeadline || '',
+        avatar: user.profile?.avatar || '',
+        isVerified: user.status === 'active',
+        createdAt: user.createdAt
+      }
+    });
   } catch (err) {
-    res.status(500).json({ error: "Server error" });
+    console.error('Get current user error:', err);
+    res.status(500).json({ success: false, error: "Server error" });
   }
 };
 
 // OAuth Callback handler (if needed for frontend use)
 export const oauthSuccess = (req, res) => {
-  const token = generateToken(req.user);
-  res.redirect(`${process.env.CLIENT_URL}/dashboard?token=${token}`);
+  try {
+    const token = generateToken(req.user);
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
+    
+    console.log('OAuth success for user:', req.user.email, 'role:', req.user.role);
+    
+    // Redirect directly to role-specific dashboard
+    const roleRoutes = {
+      'admin': '/admin',
+      'job_seeker': '/job-seeker',
+      'recruiter': '/recruiter', 
+      'consultant': '/consultant'
+    };
+    
+    const redirectPath = roleRoutes[req.user.role] || '/dashboard';
+    const redirectUrl = `${clientUrl}/auth/callback?token=${token}`;
+    
+    console.log('Redirecting to:', redirectUrl);
+    
+    // Redirect to frontend auth callback page with token
+    res.redirect(redirectUrl);
+  } catch (error) {
+    console.error('OAuth success error:', error);
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
+    res.redirect(`${clientUrl}/login?error=authentication_failed`);
+  }
 };

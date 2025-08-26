@@ -6,18 +6,48 @@ const jobSchema = new mongoose.Schema(
     description: String,
     company: { type: String, required: true },
     location: String,
+    
+    // Updated employment type structure
+    employmentType: {
+      fullTime: { type: Number, default: 0 },
+      partTime: { type: Number, default: 0 },
+      contract: { type: Number, default: 0 },
+      internship: { type: Number, default: 0 },
+      temporary: { type: Number, default: 0 },
+      other: String
+    },
+    
+    // Legacy type field for backward compatibility
     type: { type: String, enum: ["full-time", "part-time", "remote", "contract", "internship"], default: "full-time" },
-    salary: String,
+    
+    // Enhanced salary structure
+    salary: {
+      min: Number,
+      max: Number,
+      currency: { type: String, default: "USD" },
+      type: { type: String, enum: ["yearly", "monthly", "hourly", "daily"], default: "yearly" }
+    },
+    
+    // Legacy salary field for backward compatibility
+    salaryLegacy: String,
+    
     experience: String, // e.g., "2-4 years", "Entry level", "Senior level"
     skills: [String], // Required skills
     department: String, // e.g., "Engineering", "Marketing", "Sales"
-    source: { type: String, enum: ["internal", "crawled", "Indeed", "LinkedIn", "RemoteOK", "Wellfound", "indeed", "linkedin", "remoteok", "wellfound"], default: "internal" },
+    
+    // Enhanced source tracking
+    source: { type: String, enum: ["internal", "crawled", "indeed", "linkedin", "remoteok", "wellfound", "naukri", "monster", "other"], default: "internal" },
     externalUrl: String,
     sourceUrl: String, // Original job posting URL from crawler
     crawledAt: { type: Date }, // When this job was crawled
     datePosted: { type: Date }, // Original posting date from source
     tags: [String], // Additional tags from crawler
     isActive: { type: Boolean, default: true }, // For crawler management
+    
+    // New fields for enhanced crawler data
+    workType: { type: String, enum: ["onsite", "remote", "hybrid"], default: "onsite" },
+    withEmploymentType: String, // Human-readable summary like "12 FTE, 8 Contract"
+    currencySupported: [{ type: String, default: ["USD", "INR"] }],
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     companyId: { type: mongoose.Schema.Types.ObjectId, ref: "RegisteredCompany" },
     applicants: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],

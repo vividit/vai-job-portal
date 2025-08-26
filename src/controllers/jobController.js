@@ -409,6 +409,10 @@ export const getAdminAllJobs = async (req, res) => {
       status,
       source,
       search,
+      company,
+      type,
+      dateFrom,
+      session,
       sortBy = 'createdAt',
       order = 'desc'
     } = req.query;
@@ -417,15 +421,75 @@ export const getAdminAllJobs = async (req, res) => {
     
     // Build filter
     const filter = {};
+    
+    // Status filter
     if (status && status !== 'all') filter.status = status;
+    
+    // Source filter
     if (source && source !== 'all') filter.source = source;
+    
+    // Company filter
+    if (company && company !== 'all') {
+      filter.company = { $regex: company, $options: 'i' };
+    }
+    
+    // Employment type filter
+    if (type && type !== 'all') filter.type = type;
+    
+    // Date range filter (jobs created from specific date)
+    if (dateFrom) {
+      const fromDate = new Date(dateFrom);
+      fromDate.setHours(0, 0, 0, 0); // Start of day
+      filter.createdAt = { $gte: fromDate };
+    }
+    
+    // Session filter (based on creation time)
+    if (session && session !== 'all') {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      let startHour, endHour;
+      switch (session) {
+        case 'morning':
+          startHour = 6;
+          endHour = 12;
+          break;
+        case 'afternoon':
+          startHour = 12;
+          endHour = 18;
+          break;
+        case 'evening':
+          startHour = 18;
+          endHour = 24;
+          break;
+        default:
+          startHour = 0;
+          endHour = 24;
+      }
+      
+      const sessionStart = new Date(today);
+      sessionStart.setHours(startHour, 0, 0, 0);
+      const sessionEnd = new Date(today);
+      sessionEnd.setHours(endHour, 0, 0, 0);
+      
+      filter.createdAt = {
+        ...filter.createdAt,
+        $gte: sessionStart,
+        $lt: sessionEnd
+      };
+    }
+    
+    // Search filter (title, company, location)
     if (search) {
       filter.$or = [
         { title: { $regex: search, $options: 'i' } },
         { company: { $regex: search, $options: 'i' } },
-        { location: { $regex: search, $options: 'i' } }
+        { location: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
       ];
     }
+
+    console.log('Admin jobs filter:', JSON.stringify(filter, null, 2));
 
     // Build sort
     const sortOptions = {};
@@ -439,13 +503,25 @@ export const getAdminAllJobs = async (req, res) => {
 
     const total = await Job.countDocuments(filter);
 
+    console.log(`Found ${jobs.length} jobs out of ${total} total with filters`);
+
     res.json({
-      jobs,
+      success: true,
+      data: jobs,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
         total,
         pages: Math.ceil(total / limit)
+      },
+      appliedFilters: {
+        status,
+        source,
+        company,
+        type,
+        dateFrom,
+        session,
+        search
       }
     });
   } catch (err) {

@@ -175,6 +175,183 @@ export const quickCrawl = async (req, res) => {
   }
 };
 
+// Enhanced crawl with robots.txt compliance and structured data extraction
+export const enhancedCrawl = async (req, res) => {
+  try {
+    console.log('🚀 Enhanced crawl endpoint hit!');
+    console.log('Request body:', req.body);
+    console.log('Request headers:', req.headers);
+    
+    const {
+      urls = [],
+      searchTerms = ['software engineer'],
+      locations = ['remote'],
+      sources = ['linkedin', 'indeed'],
+      maxJobsPerSource = 25,
+      respectRobots = true,
+      crawlDelay = 1000,
+      saveToDatabase = true
+    } = req.body;
+
+    const sessionId = uuidv4();
+    const userId = req.user?._id;
+
+    console.log('📊 Enhanced crawl config:', {
+      sessionId,
+      userId,
+      sources,
+      searchTerms,
+      locations,
+      maxJobsPerSource,
+      respectRobots
+    });
+
+    logger.info(`Enhanced crawl initiated by ${req.user?.email || 'System'} with session ${sessionId}`);
+
+    // Create crawler session
+    const session = new CrawlerSession({
+      sessionId,
+      crawlerInstance: 999, // Use 999 to distinguish enhanced crawler from C1-C4
+      configuration: {
+        sources,
+        searchTerms,
+        locations,
+        maxJobsPerSource,
+        respectRobots,
+        crawlDelay,
+        urls
+      },
+      createdBy: userId,
+      progress: {
+        currentStep: 'Initializing Enhanced Crawl',
+        stepsCompleted: 0,
+        totalSteps: sources.length * searchTerms.length + urls.length,
+        currentSource: '',
+        currentCompany: ''
+      }
+    });
+
+    await session.save();
+
+    // Start enhanced crawling
+    const structuredJobs = await crawlerService.crawlJobsEnhanced({
+      urls,
+      searchTerms,
+      locations,
+      sources,
+      maxJobsPerSource,
+      respectRobots,
+      crawlDelay
+    });
+
+    let saveResults = null;
+    if (saveToDatabase && structuredJobs.length > 0) {
+      saveResults = await crawlerService.saveExtractedJobs(structuredJobs);
+    }
+
+    // Update session completion
+    await session.complete('completed');
+    
+    // Update session statistics
+    session.statistics.totalJobsFound = structuredJobs.length;
+    session.statistics.jobsSaved = saveResults?.saved || 0;
+    await session.save();
+
+    // Update crawler instance statistics
+    if (crawlerInstance) {
+      try {
+        const CrawlerInstance = (await import('../models/CrawlerInstance.js')).default;
+        const crawler = await CrawlerInstance.findOne({ crawlerId: parseInt(crawlerInstance) });
+        
+        if (crawler) {
+          crawler.statistics.totalRuns += 1;
+          crawler.statistics.totalJobsFound += structuredJobs.length;
+          crawler.statistics.totalJobsSaved += (saveResults?.saved || 0);
+          crawler.statistics.lastRunAt = new Date();
+          
+          // Update average run time
+          const sessionDuration = session.getExecutionTime();
+          if (sessionDuration > 0) {
+            const totalRunTime = crawler.statistics.averageRunTime * (crawler.statistics.totalRuns - 1) + sessionDuration;
+            crawler.statistics.averageRunTime = Math.round(totalRunTime / crawler.statistics.totalRuns);
+          }
+          
+          await crawler.save();
+          console.log(`✅ Updated crawler ${crawlerInstance} statistics: ${structuredJobs.length} jobs found, ${saveResults?.saved || 0} saved`);
+        }
+      } catch (error) {
+        console.error('❌ Error updating crawler instance statistics:', error);
+      }
+    }
+
+    const response = {
+      success: true,
+      message: `Enhanced crawl completed: ${structuredJobs.length} jobs extracted`,
+      data: {
+        sessionId,
+        totalJobsExtracted: structuredJobs.length,
+        structuredJobs: structuredJobs.slice(0, 10), // Return first 10 for preview
+        saveResults,
+        robotsCompliance: respectRobots,
+        configuration: {
+          sources,
+          searchTerms,
+          locations,
+          maxJobsPerSource,
+          urls: urls.length
+        }
+      }
+    };
+
+    res.json(response);
+
+  } catch (error) {
+    logger.error('Error in enhanced crawl:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+};
+
+// Test robots.txt compliance for a URL
+export const testRobotsCompliance = async (req, res) => {
+  try {
+    const { url, userAgent = 'JobCrawler/1.0' } = req.body;
+
+    if (!url) {
+      return res.status(400).json({
+        success: false,
+        error: 'URL is required'
+      });
+    }
+
+    const robotsChecker = (await import('../utils/robotsChecker.js')).default;
+    
+    const isAllowed = await robotsChecker.robotsAllowed(url, userAgent);
+    const crawlDelay = await robotsChecker.getCrawlDelay(url, userAgent);
+
+    res.json({
+      success: true,
+      data: {
+        url,
+        userAgent,
+        crawlingAllowed: isAllowed,
+        crawlDelay,
+        timestamp: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    logger.error('Error testing robots compliance:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
 // Get crawling status
 export const getCrawlingStatus = async (req, res) => {
   try {

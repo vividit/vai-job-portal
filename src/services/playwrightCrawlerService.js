@@ -448,6 +448,317 @@ class PlaywrightCrawlerService {
     return { results, jobs: allJobs };
   }
 
+  // Method aliases for crawler service compatibility
+  async crawlLinkedIn(searchTerm, location, limit) {
+    return await this.scrapeLinkedIn(searchTerm, location, limit);
+  }
+
+  async crawlIndeed(searchTerm, location, limit) {
+    return await this.scrapeIndeed(searchTerm, location, limit);
+  }
+
+  async crawlRemoteOK(searchTerm, limit) {
+    return await this.scrapeWellfound(searchTerm, limit); // Use Wellfound as RemoteOK alternative
+  }
+
+  // Specific Mercury job crawler
+  async crawlMercury(searchTerm = 'software engineer', limit = 25) {
+    logger.info('🔗 Starting Mercury jobs crawl...');
+    const browser = await this.initBrowser();
+    
+    try {
+      const page = await browser.newPage();
+      await page.setUserAgent(this.getRandomUserAgent());
+      
+      // Navigate to Mercury careers page
+      await page.goto('https://mercury.com/careers', { waitUntil: 'networkidle2', timeout: 30000 });
+      await this.delay(2000);
+      
+      // Extract Mercury-specific job data
+      const jobs = await page.evaluate(() => {
+        const jobsData = [];
+        
+        // Mercury uses specific job card selectors
+        const jobElements = document.querySelectorAll('[data-testid="job-card"], .job-listing, .career-listing, a[href*="/jobs/"]');
+        
+        jobElements.forEach(element => {
+          try {
+            const titleElement = element.querySelector('h3, h2, .job-title, [class*="title"]') || element;
+            const locationElement = element.querySelector('.location, [class*="location"]');
+            
+            const title = titleElement.textContent?.trim() || '';
+            const href = element.href || element.querySelector('a')?.href || '';
+            
+            if (title && href) {
+              jobsData.push({
+                title: title,
+                company: 'Mercury',
+                location: locationElement?.textContent?.trim() || 'Remote',
+                url: href,
+                source: 'mercury'
+              });
+            }
+          } catch (error) {
+            console.error('Error parsing Mercury job:', error);
+          }
+        });
+        
+        return jobsData;
+      });
+      
+      // Now get detailed info for each job
+      const detailedJobs = [];
+      for (const job of jobs.slice(0, limit)) {
+        try {
+          await page.goto(job.url, { waitUntil: 'networkidle2', timeout: 30000 });
+          await this.delay(2000);
+          
+          const jobDetails = await page.evaluate(() => {
+            // Extract detailed job information
+            const description = document.querySelector('.job-description, [class*="description"], .content, main')?.textContent?.trim() || '';
+            
+            // Extract salary from text
+            const salaryMatch = description.match(/\$(\d{1,3}(?:,\d{3})*)\s*[-–]\s*\$(\d{1,3}(?:,\d{3})*)/);
+            let salary = 'Not specified';
+            if (salaryMatch) {
+              salary = `$${salaryMatch[1]} - $${salaryMatch[2]}`;
+            }
+            
+            // Extract skills from description
+            const skillsRegex = /(React|TypeScript|Haskell|JavaScript|Python|Java|Go|Node\.js|SQL|AWS|Docker|Kubernetes|GraphQL|REST|API|Git|Agile|Scrum)/gi;
+            const skillsMatches = description.match(skillsRegex) || [];
+            const uniqueSkills = [...new Set(skillsMatches.map(skill => skill.toLowerCase()))];
+            
+            return {
+              description: description,
+              salary: salary,
+              skills: uniqueSkills,
+              datePosted: new Date().toISOString(),
+              type: 'full-time'
+            };
+          });
+          
+          // Combine basic info with detailed info
+          detailedJobs.push({
+            ...job,
+            ...jobDetails
+          });
+          
+        } catch (error) {
+          logger.error(`Error getting details for Mercury job ${job.title}:`, error);
+          // Add basic job without details
+          detailedJobs.push({
+            ...job,
+            description: 'No detailed description available',
+            salary: 'Not specified',
+            skills: [],
+            datePosted: new Date().toISOString(),
+            type: 'full-time'
+          });
+        }
+      }
+      
+      logger.info(`✅ Found ${detailedJobs.length} Mercury jobs`);
+      return detailedJobs;
+      
+    } catch (error) {
+      logger.error('❌ Error crawling Mercury jobs:', error);
+      return [];
+    }
+  }
+
+  async crawlMercury(specificUrl = null) {
+    console.log('🏦 Crawling Mercury jobs...');
+    
+    const browser = await this.initBrowser();
+    if (!browser) {
+      console.warn('Browser not available for Mercury crawling');
+      return [];
+    }
+
+    try {
+      const page = await browser.newPage();
+      await page.setUserAgent(this.getRandomUserAgent());
+      
+      // Use specific URL if provided, otherwise use general Mercury careers page
+      const mercuryUrl = specificUrl || 'https://boards.greenhouse.io/mercury';
+      
+      console.log(`🔗 Navigating to Mercury: ${mercuryUrl}`);
+      await page.goto(mercuryUrl, { 
+        waitUntil: 'networkidle2',
+        timeout: 30000 
+      });
+
+      await this.delay(3000);
+
+      // If this is a specific job URL, extract full description
+      if (specificUrl && specificUrl.includes('/jobs/')) {
+        console.log('📄 Extracting full job description from specific Mercury job page');
+        
+        const jobData = await page.evaluate(() => {
+          // Mercury/Greenhouse job description selectors
+          const descriptionElement = document.querySelector('#content, .section-wrapper, .job-post-content, .application-detail');
+          const description = descriptionElement?.textContent?.trim() || '';
+          
+          // Extract salary if available
+          const salaryElement = document.querySelector('.salary, [class*="salary"], .compensation');
+          const salary = salaryElement?.textContent?.trim() || '';
+          
+          // Get job title from page
+          const titleElement = document.querySelector('h1, .job-title, .application-title');
+          const title = titleElement?.textContent?.trim() || '';
+          
+          return {
+            title,
+            description,
+            salary
+          };
+        });
+
+        await page.close();
+
+        if (jobData.description) {
+          return [{
+            title: jobData.title || 'Mercury Job',
+            company: 'Mercury',
+            location: 'Remote/Multiple Locations',
+            description: jobData.description,
+            salary: jobData.salary || 'Competitive',
+            url: specificUrl,
+            sourceUrl: specificUrl,
+            datePosted: new Date().toISOString()
+          }];
+        }
+      }
+
+      await page.close();
+      console.log('✅ Mercury crawling completed');
+      return [];
+
+    } catch (error) {
+      console.error('❌ Error crawling Mercury jobs:', error);
+      return [];
+    }
+  }
+
+  async crawlUrl(url) {
+    // Check if this is a Mercury URL and use specific parser
+    if (url.includes('mercury.com') || url.includes('greenhouse.io/mercury')) {
+      return this.crawlMercury(url);
+    }
+    
+    // Generic URL crawler for any job site
+    const browser = await this.initBrowser();
+    if (!browser) {
+      logger.warn('Browser not available for URL crawling');
+      return [];
+    }
+
+    const context = await browser.newContext({
+      userAgent: this.getRandomUserAgent(),
+      viewport: { width: 1920, height: 1080 }
+    });
+    
+    const page = await context.newPage();
+
+    try {
+      logger.info(`🔍 Crawling URL: ${url}`);
+      await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
+      await this.delay(3000);
+
+      // Generic job extraction logic
+      const jobs = await page.evaluate(() => {
+        const possibleJobSelectors = [
+          '[data-testid*="job"], [data-test*="job"], .job-card, .job-listing, .job-item',
+          '.job-search-card, .base-card, .search-result',
+          '[class*="job"], [class*="position"], [class*="vacancy"]'
+        ];
+
+        const jobsData = [];
+        
+        for (const selector of possibleJobSelectors) {
+          const elements = document.querySelectorAll(selector);
+          if (elements.length > 0) {
+            elements.forEach(element => {
+              try {
+                // Try multiple title selectors
+                const titleElement = element.querySelector('h1, h2, h3, .title, [class*="title"], a[href*="job"]');
+                const companyElement = element.querySelector('.company, [class*="company"], .employer, [class*="employer"]');
+                const locationElement = element.querySelector('.location, [class*="location"], .city, [class*="city"]');
+                
+                // Enhanced description extraction
+                const descriptionElement = element.querySelector('.description, [class*="description"], .content, [class*="content"], .summary, [class*="summary"], p, .text, [class*="text"]');
+                
+                // Enhanced salary extraction
+                const salaryElement = element.querySelector('.salary, [class*="salary"], .compensation, [class*="compensation"], .pay, [class*="pay"]');
+                
+                if (titleElement) {
+                  const title = titleElement.textContent?.trim() || '';
+                  const company = companyElement?.textContent?.trim() || 'Unknown Company';
+                  
+                  // Extract description - try multiple approaches
+                  let description = '';
+                  if (descriptionElement) {
+                    description = descriptionElement.textContent?.trim() || '';
+                  }
+                  
+                  // If no description found in element, try to get from parent or nearby elements
+                  if (!description && element.parentElement) {
+                    const parentDesc = element.parentElement.querySelector('p, div[class*="desc"], div[class*="detail"]');
+                    description = parentDesc?.textContent?.trim() || '';
+                  }
+                  
+                  // Extract salary information
+                  let salary = 'Not specified';
+                  if (salaryElement) {
+                    salary = salaryElement.textContent?.trim() || 'Not specified';
+                  } else {
+                    // Look for salary patterns in text
+                    const salaryMatch = (description || title).match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?|\$[\d,]+k?(?:\s*-\s*\$[\d,]+k?)?/i);
+                    if (salaryMatch) {
+                      salary = salaryMatch[0];
+                    }
+                  }
+                  
+                  if (title && title.length > 0) {
+                    jobsData.push({
+                      title: title,
+                      company: company,
+                      location: locationElement?.textContent?.trim() || 'Not specified',
+                      salary: salary,
+                      description: description || 'No detailed description available',
+                      url: window.location.href,
+                      source: 'crawled',
+                      datePosted: new Date().toISOString(),
+                      type: 'full-time'
+                    });
+                  }
+                }
+              } catch (error) {
+                console.error('Error parsing job element:', error);
+              }
+            });
+            
+            if (jobsData.length > 0) {
+              break; // Found jobs with this selector, stop trying others
+            }
+          }
+        }
+
+        return jobsData;
+      });
+
+      logger.info(`✅ Found ${jobs.length} jobs from URL crawl`);
+      return jobs;
+
+    } catch (error) {
+      logger.error('❌ Error crawling URL:', error);
+      return [];
+    } finally {
+      await context.close();
+    }
+  }
+
   getStatus() {
     return {
       type: 'browser-based',

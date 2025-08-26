@@ -7,6 +7,8 @@ import CrawlerSession from '../models/CrawlerSession.js';
 import logger from '../utils/logger.js';
 import apiCrawlerService from './apiCrawlerService.js';
 import playwrightCrawlerService from './playwrightCrawlerService.js';
+import robotsChecker, { robotsAllowed, getCrawlDelay } from '../utils/robotsChecker.js';
+import jobDataExtractor from './jobDataExtractor.js';
 
 class CrawlerService {
   constructor() {
@@ -50,6 +52,260 @@ class CrawlerService {
   // Delay function to avoid being blocked
   async delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Enhanced crawl job with robots.txt compliance and structured data extraction using Playwright
+   * @param {Object} options - Crawling options
+   * @returns {Promise<Array>} - Array of structured job data
+   */
+  async crawlJobsEnhanced(options = {}) {
+    const {
+      urls = [],
+      searchTerms = ['software engineer'],
+      locations = ['remote'],
+      sources = ['linkedin', 'indeed'],
+      maxJobsPerSource = 25,
+      respectRobots = true,
+      crawlDelay = 1000
+    } = options;
+
+    const allJobs = [];
+    let jobsProcessed = 0;
+
+    try {
+      logger.info('Starting enhanced job crawling with Playwright and robots.txt compliance');
+
+      // If specific URLs provided, crawl them
+      if (urls.length > 0) {
+        for (const url of urls) {
+          try {
+            // Check robots.txt compliance
+            if (respectRobots) {
+              const isAllowed = await robotsAllowed(url, 'JobCrawler/1.0');
+              if (!isAllowed) {
+                logger.warn(`Crawling not allowed for ${url} according to robots.txt`);
+                continue;
+              }
+
+              // Get and respect crawl delay
+              const delay = await getCrawlDelay(url, 'JobCrawler/1.0');
+              if (delay > 0) {
+                logger.info(`Respecting crawl delay of ${delay}s for ${url}`);
+                await this.delay(delay * 1000);
+              }
+            }
+
+            // Use Playwright for better crawling
+            const rawJobs = await playwrightCrawlerService.crawlUrl(url);
+            
+            // Extract structured data
+            const structuredJobs = jobDataExtractor.batchExtract(rawJobs, 'crawled');
+            
+            allJobs.push(...structuredJobs);
+            jobsProcessed += structuredJobs.length;
+            
+            logger.info(`Extracted ${structuredJobs.length} jobs from ${url}`);
+
+            // Respect crawl delay between requests
+            if (crawlDelay > 0) {
+              await this.delay(crawlDelay);
+            }
+
+          } catch (error) {
+            logger.error(`Error crawling ${url}:`, error);
+          }
+        }
+      }
+
+      // Crawl from known sources using Playwright
+      for (const source of sources) {
+        for (const searchTerm of searchTerms.slice(0, 2)) {
+          for (const location of locations.slice(0, 2)) {
+            try {
+              let rawJobs = [];
+
+              // Get appropriate crawl delay for the source
+              const sourceDelay = respectRobots ? 
+                await this.getSourceCrawlDelay(source) : crawlDelay;
+
+              // Use Playwright service for all sources
+              logger.info(`Using Playwright to crawl ${source} for "${searchTerm}" in ${location}`);
+              
+              switch (source.toLowerCase()) {
+                case 'linkedin':
+                  rawJobs = await playwrightCrawlerService.crawlLinkedIn(searchTerm, location, maxJobsPerSource);
+                  break;
+                case 'indeed':
+                  rawJobs = await playwrightCrawlerService.crawlIndeed(searchTerm, location, maxJobsPerSource);
+                  break;
+                case 'remoteok':
+                  rawJobs = await playwrightCrawlerService.crawlRemoteOK(searchTerm, maxJobsPerSource);
+                  break;
+                default:
+                  logger.warn(`Unknown source: ${source}`);
+                  continue;
+              }
+
+              // Extract structured data from raw jobs
+              const structuredJobs = jobDataExtractor.batchExtract(rawJobs, source);
+              
+              allJobs.push(...structuredJobs);
+              jobsProcessed += structuredJobs.length;
+              
+              logger.info(`Extracted ${structuredJobs.length} structured jobs from ${source} for "${searchTerm}" in ${location}`);
+
+              // Respect source-specific crawl delay
+              if (sourceDelay > 0) {
+                await this.delay(sourceDelay);
+              }
+
+            } catch (error) {
+              logger.error(`Error crawling ${source} for "${searchTerm}" in ${location}:`, error);
+            }
+          }
+        }
+      }
+
+      logger.info(`Enhanced crawling completed with Playwright. Total jobs processed: ${jobsProcessed}`);
+      return allJobs;
+
+    } catch (error) {
+      logger.error('Error in enhanced crawling:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get appropriate crawl delay for a source
+   * @param {string} source - Job board source
+   * @returns {Promise<number>} - Crawl delay in milliseconds
+   */
+  async getSourceCrawlDelay(source) {
+    const sourceUrls = {
+      linkedin: 'https://www.linkedin.com',
+      indeed: 'https://www.indeed.com',
+      remoteok: 'https://remoteok.io'
+    };
+
+    const url = sourceUrls[source.toLowerCase()];
+    if (!url) return 1000; // Default 1 second
+
+    try {
+      const delay = await getCrawlDelay(url, 'JobCrawler/1.0');
+      return Math.max(delay * 1000, 1000); // Minimum 1 second
+    } catch (error) {
+      logger.warn(`Error getting crawl delay for ${source}:`, error);
+      return 2000; // Conservative 2 seconds
+    }
+  }
+
+  /**
+   * Crawl jobs from a single URL
+   * @param {string} url - URL to crawl
+   * @returns {Promise<Array>} - Raw job data
+   */
+  async crawlSingleUrl(url) {
+    try {
+      const response = await axios.get(url, {
+        headers: {
+          'User-Agent': this.getRandomUserAgent(),
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.5',
+          'Accept-Encoding': 'gzip, deflate',
+          'Connection': 'keep-alive',
+          'Upgrade-Insecure-Requests': '1'
+        },
+        timeout: 30000
+      });
+
+      const $ = cheerio.load(response.data);
+      const jobs = [];
+
+      // Generic job extraction (you can customize this based on the site structure)
+      $('.job, .job-item, .posting, .vacancy, .position').each((index, element) => {
+        try {
+          const $job = $(element);
+          
+          const job = {
+            title: $job.find('.title, .job-title, h2, h3').first().text().trim(),
+            company: $job.find('.company, .employer, .organization').first().text().trim(),
+            location: $job.find('.location, .city, .place').first().text().trim(),
+            description: $job.find('.description, .summary, .content').first().text().trim(),
+            salary: $job.find('.salary, .pay, .compensation').first().text().trim(),
+            url: url,
+            sourceUrl: $job.find('a').first().attr('href') || url,
+            datePosted: $job.find('.date, .posted, time').first().text().trim()
+          };
+
+          if (job.title && job.company) {
+            jobs.push(job);
+          }
+        } catch (error) {
+          logger.warn('Error parsing job element:', error);
+        }
+      });
+
+      return jobs;
+
+    } catch (error) {
+      logger.error(`Error crawling URL ${url}:`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Save extracted jobs to database
+   * @param {Array} structuredJobs - Array of structured job data
+   * @returns {Promise<Object>} - Save results
+   */
+  async saveExtractedJobs(structuredJobs) {
+    const results = {
+      saved: 0,
+      duplicates: 0,
+      errors: 0,
+      savedJobs: []
+    };
+
+    for (const jobData of structuredJobs) {
+      try {
+        // Check for duplicates by title, company, and source
+        const existingJob = await Job.findOne({
+          title: jobData.title,
+          company: jobData.company,
+          source: jobData.source,
+          sourceUrl: jobData.sourceUrl
+        });
+
+        if (existingJob) {
+          results.duplicates++;
+          logger.debug(`Duplicate job found: ${jobData.title} at ${jobData.company}`);
+          continue;
+        }
+
+        // Create new job with enhanced data structure
+        const newJob = new Job({
+          ...jobData,
+          // Map new fields to existing schema
+          salaryLegacy: jobData.salary?.min && jobData.salary?.max ? 
+            `${jobData.salary.min}-${jobData.salary.max} ${jobData.salary.currency}` : null,
+          type: jobData.type || 'full-time'
+        });
+
+        const savedJob = await newJob.save();
+        results.saved++;
+        results.savedJobs.push(savedJob);
+
+        logger.debug(`Saved job: ${jobData.title} at ${jobData.company}`);
+
+      } catch (error) {
+        results.errors++;
+        logger.error(`Error saving job ${jobData.title}:`, error);
+      }
+    }
+
+    logger.info(`Job save results: ${results.saved} saved, ${results.duplicates} duplicates, ${results.errors} errors`);
+    return results;
   }
 
   // Indeed Job Scraper

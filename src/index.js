@@ -28,6 +28,7 @@ import profileRoutes from "./routes/profile.js";
 import externalJobRoutes from "./routes/externalJobs.js";
 import adminRoutes from "./routes/admin.js";
 import { initializeScheduledCrawling } from "./controllers/crawlerController.js";
+import { initializeDefaultCrawlers } from "./controllers/crawlerInstanceController.js";
 
 // GridFS
 import { connectGridFS } from "./utils/gridfs.js";
@@ -92,11 +93,15 @@ connectDB().then(() => {
   });
 
   const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
+  app.listen(PORT, async () => {
     console.log(`✅ Server listening on port ${PORT}`);
     
     // Initialize scheduled crawling
     initializeScheduledCrawling();
     console.log("🤖 Crawler scheduled tasks initialized");
+    
+    // Initialize default crawler instances
+    await initializeDefaultCrawlers();
+    console.log("🏭 Default crawler instances initialized");
   });
 });
